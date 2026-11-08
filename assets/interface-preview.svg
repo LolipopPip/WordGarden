@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 600" role="img" aria-label="WordGarden 功能界面视觉示意">
+  <defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#eee9df"/><stop offset="1" stop-color="#edd9d8"/></linearGradient><linearGradient id="garden" x2="0" y2="1"><stop stop-color="#f1f1e6"/><stop offset="1" stop-color="#dfe8d5"/></linearGradient><filter id="shadow" x="-20%" y="-30%" width="150%" height="160%"><feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#544a42" flood-opacity=".13"/></filter></defs>
+  <rect width="1100" height="600" rx="20" fill="url(#bg)"/>
+  <g filter="url(#shadow)"><rect x="54" y="50" width="992" height="498" rx="18" fill="#fffdf8"/></g>
+  <path d="M72 50h956q18 0 18 18v48H54V68q0-18 18-18Z" fill="#f8f3eb"/>
+  <circle cx="88" cy="84" r="6" fill="#c88b8c"/><circle cx="109" cy="84" r="6" fill="#dabd87"/><circle cx="130" cy="84" r="6" fill="#96a88f"/>
+  <text x="167" y="91" font-family="Georgia,serif" font-size="21" fill="#50604f">WordGarden</text><text x="984" y="90" font-family="sans-serif" font-size="12" fill="#918b83" text-anchor="end">GENREs / 01 · UI CONCEPT</text>
+  <path d="M54 116H1046" stroke="#e8e4dc"/>
+  <rect x="54" y="116" width="215" height="432" rx="0" fill="#e6e9dc"/><path d="M54 528v2q0 18 18 18h197v-20Z" fill="#e6e9dc"/>
+  <text x="82" y="163" font-family="'Noto Sans SC',sans-serif" font-size="17" font-weight="700" fill="#51634f">我的词间花园</text>
+  <rect x="80" y="182" width="163" height="40" rx="13" fill="#f9fbf2"/><text x="95" y="208" font-size="14" fill="#8c9b8b" font-family="sans-serif">⌕  Search words</text>
+  <text x="84" y="259" font-size="12" font-family="sans-serif" fill="#858f80" letter-spacing="2">RECENT WORDS</text>
+  <g font-family="Georgia,serif" fill="#4a624f" font-size="17"><text x="96" y="303">serendipity</text><text x="96" y="361">bloom</text><text x="96" y="419">luminous</text><text x="96" y="477">wander</text></g>
+  <rect x="76" y="275" width="176" height="44" rx="10" fill="#cbd7c1" opacity=".7"/>
+  <text x="96" y="303" font-size="17" fill="#435941" font-family="Georgia,serif">serendipity</text>
+  <g fill="#aab9a1"><circle cx="226" cy="357" r="4"/><circle cx="226" cy="415" r="4"/><circle cx="226" cy="473" r="4"/></g>
+  <text x="310" y="169" font-family="sans-serif" font-size="13" letter-spacing="3" fill="#949487">TODAY'S DISCOVERY</text>
+  <text x="305" y="221" font-size="47" font-family="Georgia,serif" fill="#3e5744">serendipity</text>
+  <text x="307" y="256" font-family="sans-serif" font-size="15" fill="#849080">/ˌser.ənˈdɪp.ə.ti/</text>
+  <rect x="306" y="285" width="370" height="81" rx="13" fill="#f6f2e9"/>
+  <text x="325" y="315" font-family="'Noto Sans SC',sans-serif" font-size="17" fill="#536151">不期而遇的美好发现</text>
+  <text x="325" y="346" font-family="Georgia,serif" font-size="15" fill="#8a8579" font-style="italic">A happy accident, worth remembering.</text>
+  <rect x="307" y="399" width="171" height="47" rx="13" fill="#6b8972"/><text x="392" y="428" text-anchor="middle" font-family="sans-serif" font-size="15" fill="#fff">Review this word  ↗</text>
+  <rect x="487" y="399" width="171" height="47" rx="13" fill="#fcfaf4" stroke="#b4c0ad"/><text x="572" y="428" text-anchor="middle" font-family="sans-serif" font-size="15" fill="#648267">Add an example ＋</text>
+  <text x="308" y="498" font-family="sans-serif" font-size="13" fill="#a59b90">One word at a time, one flower at a time.</text>
+  <rect x="711" y="149" width="302" height="350" rx="19" fill="url(#garden)"/>
+  <text x="734" y="185" font-family="Georgia,serif" font-size="22" fill="#58755a">Your little garden</text><text x="734" y="208" font-family="sans-serif" font-size="13" fill="#8b9681">Every review helps it grow.</text>
+  <path d="M744 437q42-17 88-8t152 2" fill="none" stroke="#b9c7a7" stroke-width="4"/>
+  <g stroke="#708f67" stroke-width="3" stroke-linecap="round" fill="none"><path d="M787 432q0-97-15-131"/><path d="M842 431q11-130 27-176"/><path d="M934 432q-9-81 1-111"/></g>
+  <g fill="#8ca87b"><path d="M796 385q-42-37-52-14q22 25 52 14Z"/><path d="M837 359q37-36 50-14q-26 26-50 14Z"/><path d="M936 400q-43-34-51-12q29 22 51 12Z"/></g>
+  <g fill="#dba2ab"><g transform="translate(773 299)"><circle cx="0" cy="-15" r="17"/><circle cx="15" cy="-3" r="17"/><circle cx="9" cy="16" r="17"/><circle cx="-11" cy="15" r="17"/><circle cx="-17" cy="-4" r="17"/><circle r="11" fill="#e8c98d"/></g><g transform="translate(869 250) scale(.8)"><circle cy="-15" r="17"/><circle cx="15" cy="-3" r="17"/><circle cx="9" cy="16" r="17"/><circle cx="-11" cy="15" r="17"/><circle cx="-17" cy="-4" r="17"/><circle r="11" fill="#e8c98d"/></g><g transform="translate(936 317) scale(.63)"><circle cy="-15" r="17"/><circle cx="15" cy="-3" r="17"/><circle cx="9" cy="16" r="17"/><circle cx="-11" cy="15" r="17"/><circle cx="-17" cy="-4" r="17"/><circle r="11" fill="#e8c98d"/></g></g>
+  <text x="984" y="566" font-family="sans-serif" font-size="11" text-anchor="end" fill="#978781" letter-spacing="2">ILLUSTRATIVE PREVIEW · NOT A SCREENSHOT</text>
+</svg>

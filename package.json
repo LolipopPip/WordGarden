@@ -1,0 +1,14 @@
+{
+  "name": "wordgarden",
+  "version": "0.1.0",
+  "main": "wordgarden_handoff/desktop-main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "devDependencies": {
+    "electron": "^43.4.0"
+  }
+}

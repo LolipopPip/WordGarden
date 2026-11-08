@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>词间花园 · 单词记忆</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E9EEDF;
+  --bg2:#DEE6D1;
+  --paper:#FBFBF3;
+  --paper-soft:#F3F2E7;
+  --ink:#22362A;
+  --ink-soft:#5A6C5D;
+  --ink-faint:#8B9A8B;
+  --line:#D7DCC6;
+  --gold:#DC9A34;
+  --gold-soft:#F3DBA9;
+  --rose:#C4707C;
+  --rose-soft:#F0D3D6;
+  --sky:#6F9C93;
+  --sky-soft:#D9E8E2;
+  --radius:12px;
+  --radius-sm:7px;
+  --shadow:0 3px 14px rgba(34,54,42,0.10);
+  --shadow-lg:0 10px 34px rgba(34,54,42,0.20);
+  --serif:'Noto Serif SC',serif;
+  --sans:'Noto Sans SC',sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+.hidden{display:none !important;}
+body{
+  font-family:var(--sans);
+  background:
+    radial-gradient(circle at 15% 8%, rgba(255,255,255,0.5), transparent 40%),
+    linear-gradient(160deg, var(--bg), var(--bg2));
+  color:var(--ink);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;cursor:pointer;}
+input,textarea{font-family:inherit;}
+::selection{background:var(--gold-soft);}
+
+/* ---------- layout ---------- */
+#app{max-width:960px;margin:0 auto;padding:28px 20px 90px;}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:22px;flex-wrap:wrap;gap:12px;
+}
+.brand{
+  font-family:var(--serif);font-weight:900;font-size:26px;letter-spacing:1px;
+  color:var(--ink);display:flex;align-items:center;gap:8px;
+}
+.brand small{font-family:var(--sans);font-weight:400;font-size:12px;color:var(--ink-faint);letter-spacing:2px;}
+.tabs{display:flex;gap:2px;background:var(--paper-soft);padding:4px;border-radius:999px;box-shadow:inset 0 1px 3px rgba(0,0,0,0.06);}
+.tab{
+  border:none;background:transparent;padding:9px 18px;border-radius:999px;
+  font-size:14.5px;font-weight:700;color:var(--ink-soft);transition:all .2s;
+}
+.tab.active{background:var(--ink);color:var(--paper);box-shadow:var(--shadow);}
+.rewards-mini{
+  display:flex;align-items:center;gap:6px;background:var(--paper);
+  border:1px solid var(--line);padding:7px 14px;border-radius:999px;
+  font-size:13px;font-weight:700;color:var(--gold);box-shadow:var(--shadow);
+}
+.user-switcher{
+  display:flex;align-items:center;gap:7px;background:rgba(251,251,243,0.78);
+  border:1px solid var(--line);border-radius:999px;padding:5px 6px 5px 12px;
+  box-shadow:var(--shadow);
+}
+.user-switcher span{font-size:12px;font-weight:700;color:var(--ink-faint);}
+.user-select{
+  min-width:112px;max-width:170px;border:none;background:transparent;color:var(--ink);
+  font-size:13px;font-weight:700;outline:none;
+}
+.user-add-btn{
+  width:28px;height:28px;border-radius:50%;border:1px solid var(--line);
+  background:var(--paper);color:var(--ink);font-size:17px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;line-height:1;padding:0;
+}
+.user-add-btn:hover{background:var(--gold-soft);}
+
+.tabpanel{display:none;animation:fadein .25s ease;}
+.tabpanel.active{display:block;}
+@keyframes fadein{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+.card{
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:20px;
+}
+.section-title{
+  font-family:var(--serif);font-weight:700;font-size:19px;margin:0 0 4px;
+  display:flex;align-items:center;gap:8px;
+}
+.section-sub{color:var(--ink-faint);font-size:13px;margin:0 0 16px;}
+
+/* ---------- word bank ---------- */
+.bank-toolbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.bank-toolbar input{
+  flex:1;min-width:180px;padding:10px 14px;border-radius:999px;border:1px solid var(--line);
+  background:var(--paper-soft);font-size:14px;color:var(--ink);
+}
+.bank-toolbar input:focus{outline:2px solid var(--sky);outline-offset:1px;}
+.btn{
+  border:none;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;
+  background:var(--paper-soft);color:var(--ink);border:1px solid var(--line);transition:.15s;
+}
+.btn:hover{transform:translateY(-1px);box-shadow:var(--shadow);}
+.btn.primary{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.btn.gold{background:var(--gold);color:#fff;border-color:var(--gold);}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none;}
+.btn.small{padding:6px 12px;font-size:12.5px;}
+.btn.danger{background:var(--rose-soft);border-color:var(--rose);color:#7a2f38;}
+
+.date-group{margin-bottom:22px;}
+.date-head{
+  display:flex;align-items:center;gap:10px;margin-bottom:10px;
+  font-size:12.5px;font-weight:700;color:var(--ink-faint);letter-spacing:1px;
+}
+.date-head::after{content:"";flex:1;height:1px;background:var(--line);}
+.word-list{display:flex;flex-direction:column;gap:8px;}
+.word-row{
+  display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--radius-sm);
+  background:var(--paper-soft);border:1px solid var(--line);
+}
+.word-main{flex:1;min-width:0;}
+.word-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+.word-text{font-family:var(--serif);font-weight:700;font-size:16px;}
+.badge{
+  font-size:11px;padding:2px 8px;border-radius:999px;font-weight:700;
+}
+.badge.mastered{background:var(--gold-soft);color:#8a5a10;}
+.badge.new{background:var(--sky-soft);color:#2c554b;}
+.word-meaning{color:var(--ink-soft);font-size:13px;margin-top:2px;}
+.word-example{color:var(--ink-faint);font-size:12.5px;font-style:italic;margin-top:2px;}
+.word-pending{color:var(--gold);font-size:12px;font-weight:700;margin-top:3px;}
+.word-stats{font-size:12px;color:var(--ink-faint);white-space:nowrap;}
+.word-actions{display:flex;gap:6px;}
+.icon-btn{
+  border:none;background:transparent;font-size:15px;padding:4px 6px;border-radius:6px;color:var(--ink-faint);
+}
+.icon-btn:hover{background:var(--line);color:var(--ink);}
+.empty-state{
+  text-align:center;padding:40px 20px;color:var(--ink-faint);
+}
+.empty-state .big{font-size:40px;display:block;margin-bottom:10px;}
+
+/* ---------- quiz ---------- */
+.quiz-stats{display:flex;gap:14px;flex-wrap:wrap;margin:16px 0 20px;}
+.stat-pill{
+  background:var(--paper-soft);border:1px solid var(--line);border-radius:var(--radius-sm);
+  padding:12px 18px;text-align:center;min-width:100px;
+}
+.stat-pill b{display:block;font-family:var(--serif);font-size:22px;}
+.stat-pill span{font-size:12px;color:var(--ink-faint);}
+
+.quiz-progress-wrap{background:var(--line);height:6px;border-radius:3px;overflow:hidden;margin-bottom:22px;}
+.quiz-progress-bar{height:100%;background:linear-gradient(90deg,var(--sky),var(--gold));transition:width .3s;}
+.quiz-topline{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-faint);margin-bottom:6px;}
+.quiz-type-label{
+  display:inline-block;font-size:11.5px;font-weight:700;color:var(--sky);
+  background:var(--sky-soft);padding:3px 10px;border-radius:999px;margin-bottom:14px;
+}
+.quiz-display{
+  font-family:var(--serif);font-size:22px;line-height:1.6;text-align:center;
+  padding:26px 20px;margin-bottom:22px;background:var(--paper-soft);border-radius:var(--radius);
+  border:1px solid var(--line);
+}
+.quiz-display .blank{color:var(--rose);font-weight:700;letter-spacing:2px;}
+.quiz-display.sentence{font-size:18px;text-align:left;}
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.opt-btn{
+  padding:16px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--line);
+  background:var(--paper);font-size:14.5px;text-align:left;transition:.15s;line-height:1.4;
+}
+.opt-btn.meaning-opt{
+  display:flex;align-items:center;gap:12px;min-height:82px;
+  font-size:15px;font-weight:700;color:var(--ink);
+}
+.option-emoji{
+  flex:0 0 44px;width:44px;height:44px;border-radius:14px;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:linear-gradient(145deg,#fff7df,#d9e8e2);
+  border:1px solid rgba(215,220,198,.9);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 4px 10px rgba(34,54,42,.08);
+  font-size:24px;
+}
+.option-text{min-width:0;}
+.opt-btn:hover:not(:disabled){border-color:var(--sky);background:var(--sky-soft);}
+.opt-btn.correct{background:#DCEEDC;border-color:#5C9C5C;color:#245424;}
+.opt-btn.wrong{background:var(--rose-soft);border-color:var(--rose);color:#7a2f38;}
+.opt-btn:disabled{cursor:default;}
+.selfcheck-wrap{text-align:center;}
+.selfcheck-word{font-family:var(--serif);font-size:32px;font-weight:700;margin:6px 0 6px;}
+.selfcheck-reveal{min-height:44px;color:var(--ink-soft);font-size:14px;margin-bottom:16px;}
+.selfcheck-btns{display:flex;gap:12px;justify-content:center;}
+.selfcheck-btns .btn{padding:12px 26px;font-size:14.5px;}
+.next-row{display:flex;justify-content:flex-end;margin-top:20px;}
+.quiz-intro{text-align:center;padding:24px 10px;}
+.quiz-intro .big{font-size:44px;}
+.summary{text-align:center;padding:10px;}
+.summary h3{font-family:var(--serif);font-size:24px;margin-bottom:4px;}
+.summary .score{font-size:46px;font-family:var(--serif);font-weight:900;color:var(--gold);margin:10px 0;}
+.reward-line{margin:14px 0;font-size:14px;color:var(--ink-soft);}
+.mastered-chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:14px 0;}
+.mastered-chips span{background:var(--gold-soft);color:#8a5a10;padding:4px 10px;border-radius:999px;font-size:12.5px;font-weight:700;}
+.summary-actions{display:flex;gap:10px;justify-content:center;margin-top:18px;}
+
+/* ---------- garden ---------- */
+.garden-layout{display:flex;gap:20px;flex-wrap:wrap;}
+.garden-plot{flex:1;min-width:280px;}
+.garden-grid{
+  display:grid;grid-template-columns:repeat(8,1fr);gap:5px;
+  background:#B99A6B;padding:10px;border-radius:var(--radius);
+  box-shadow:inset 0 2px 8px rgba(0,0,0,0.2);
+}
+.garden-cell{
+  aspect-ratio:1;background:#CBAE7C;border-radius:5px;display:flex;align-items:center;justify-content:center;
+  font-size:20px;border:1px solid rgba(0,0,0,0.05);transition:.15s;
+}
+.garden-cell.filled{background:#DCC79A;}
+.garden-cell:hover{filter:brightness(1.08);}
+.garden-side{width:270px;}
+.inv-list{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;min-height:40px;}
+.inv-chip{
+  font-size:22px;padding:8px;border-radius:10px;background:var(--paper-soft);border:1.5px solid var(--line);
+}
+.inv-chip.selected{border-color:var(--gold);background:var(--gold-soft);}
+.draw-box{
+  background:var(--paper-soft);border:1px dashed var(--line);border-radius:var(--radius-sm);
+  padding:14px;margin-top:16px;text-align:center;
+}
+.draw-box .count{font-size:13px;color:var(--ink-soft);margin-bottom:10px;}
+.hint-note{font-size:12px;color:var(--ink-faint);margin-top:10px;line-height:1.6;}
+
+/* ---------- desktop widget ---------- */
+body.widget-mode{
+  background:transparent;
+  min-height:100vh;
+  overflow:hidden;
+}
+.widget-shell{
+  width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;
+}
+body.widget-compact .widget-shell{padding:0;}
+.widget-card{
+  width:280px;background:linear-gradient(160deg,#FCDFEE,#F7CBE1);
+  border-radius:30px;padding:20px 22px 22px;box-shadow:0 12px 30px rgba(196,110,155,0.28);
+  transition:opacity .15s;
+}
+.widget-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.widget-label{
+  font-size:11px;font-weight:700;letter-spacing:2.5px;color:#9C5C82;text-transform:uppercase;
+}
+.widget-actions{display:flex;align-items:center;gap:8px;}
+.widget-collapse,.widget-open-main{
+  width:26px;height:26px;border-radius:50%;border:none;background:rgba(255,255,255,0.55);
+  color:#9C5C82;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1;
+}
+.widget-open-main{font-size:17px;}
+.widget-collapse:hover,.widget-open-main:hover{background:rgba(255,255,255,0.85);}
+.widget-count-row{display:flex;align-items:baseline;gap:8px;margin-bottom:2px;}
+.widget-count-num{font-family:var(--serif);font-size:44px;font-weight:900;color:#6B2F55;line-height:1;}
+.widget-count-label{font-size:12px;color:#9C5C82;font-weight:700;}
+.widget-total{font-size:12px;color:#A8709A;margin-bottom:14px;}
+.widget-input{
+  width:100%;padding:11px 14px;border-radius:999px;border:none;background:rgba(255,255,255,0.6);
+  font-size:13.5px;color:#5A2C48;margin-bottom:8px;
+}
+.widget-input::placeholder{color:#B489A6;}
+.widget-input:focus{outline:2px solid #C97BA8;background:rgba(255,255,255,0.85);}
+.widget-msg{font-size:12px;font-weight:700;color:#7B3D66;min-height:16px;}
+.widget-bubble-btn{
+  position:relative;width:65px;height:62px;border:none;background:transparent;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;padding:0;
+  filter:drop-shadow(0 8px 12px rgba(64,35,37,0.14));
+}
+.widget-bubble-btn::before{
+  content:"";position:absolute;left:8px;top:2px;width:48px;height:51px;
+  background:linear-gradient(165deg,#8B5753 0%,#5B353A 56%,#3F282D 72%,#D66F70 73%,#E58B86 100%);
+  clip-path:polygon(50% 0,74% 22%,94% 43%,100% 63%,92% 80%,72% 91%,50% 95%,28% 91%,8% 80%,0 63%,6% 43%,26% 22%);
+  border-radius:18px 18px 20px 20px;opacity:.4;
+}
+.widget-bubble-btn::after{
+  content:"";position:absolute;left:10px;right:10px;bottom:9px;height:16px;
+  background:linear-gradient(180deg,rgba(245,163,145,0.96),rgba(215,94,105,0.92));
+  border-radius:0 0 999px 999px;opacity:.4;
+}
+.widget-bubble-btn:hover{transform:scale(1.04);}
+.widget-mini-main{
+  position:relative;z-index:2;margin-top:10px;font-size:34px;line-height:1;font-weight:900;
+  color:#fff;font-family:"SF Mono","Cascadia Mono","Menlo",monospace;
+  text-shadow:0 1px 5px rgba(48,20,25,0.52);font-variant-numeric:tabular-nums;
+}
+.widget-mini-sub{display:none;}
+
+/* ---------- bubble ---------- */
+#bubble{
+  position:fixed;right:26px;bottom:26px;width:58px;height:58px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold),#c9791f);color:#fff;font-size:26px;border:none;
+  box-shadow:0 6px 18px rgba(220,154,52,0.5);z-index:500;
+  display:flex;align-items:center;justify-content:center;transition:transform .15s;
+}
+#bubble:hover{transform:scale(1.08);}
+#bubble:active{transform:scale(0.95);}
+
+/* ---------- modal ---------- */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(20,30,22,0.45);display:flex;align-items:center;justify-content:center;
+  z-index:1000;padding:16px;
+}
+.modal-overlay.hidden{display:none;}
+.modal{
+  background:var(--paper);border-radius:var(--radius);padding:24px;width:100%;max-width:420px;
+  box-shadow:var(--shadow-lg);
+}
+.modal h3{font-family:var(--serif);margin:0 0 4px;font-size:19px;}
+.modal .hint{font-size:12.5px;color:var(--ink-faint);margin:0 0 14px;}
+.modal .hint code{background:var(--paper-soft);padding:1px 6px;border-radius:4px;}
+.modal input,.modal textarea{
+  width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--paper-soft);
+  font-size:14px;margin-bottom:10px;color:var(--ink);
+}
+.modal label{font-size:12px;color:var(--ink-soft);font-weight:700;display:block;margin-bottom:4px;}
+.modal textarea{resize:vertical;min-height:56px;}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:6px;}
+.msg{font-size:12.5px;margin-top:8px;min-height:16px;color:var(--sky);font-weight:700;}
+.msg.error{color:var(--rose);}
+.modal-delete{margin-right:auto;}
+
+.draw-reveal{text-align:center;padding:10px;}
+.draw-reveal .stage{font-size:60px;margin:14px 0;min-height:70px;display:flex;align-items:center;justify-content:center;}
+.draw-reveal .spin{animation:spin 1s linear infinite;font-size:40px;}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+@media (max-width:640px){
+  .options-grid{grid-template-columns:1fr;}
+  .garden-side{width:100%;}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="brand">🌿 词间花园 <small>WORD GARDEN</small></div>
+    <div class="tabs">
+      <button class="tab active" data-tab="book">单词本</button>
+      <button class="tab" data-tab="quiz">训练闯关</button>
+      <button class="tab" data-tab="garden">后花园</button>
+    </div>
+    <div class="user-switcher" title="切换账户会加载该账户下的单词、训练和花园">
+      <span>账户</span>
+      <select class="user-select" id="userSelect"></select>
+      <button class="user-add-btn" id="addUserBtn" title="新建账户">+</button>
+    </div>
+    <div class="rewards-mini">🎁 <span id="drawBadge">0</span> 待抽取</div>
+  </div>
+
+  <main>
+    <!-- 单词本 -->
+    <section id="tab-book" class="tabpanel active">
+      <div class="card">
+        <div class="section-title">📖 单词本</div>
+        <p class="section-sub">按收录日期整理你的生词，点击可编辑释义与例句。</p>
+        <div class="bank-toolbar">
+          <input id="searchInput" placeholder="搜索单词…" />
+          <button class="btn primary" id="openAddModal">＋ 添加生词</button>
+        </div>
+        <div id="bankContent"></div>
+      </div>
+    </section>
+
+    <!-- 训练闯关 -->
+    <section id="tab-quiz" class="tabpanel">
+      <div class="card" id="quizCard"></div>
+    </section>
+
+    <!-- 后花园 -->
+    <section id="tab-garden" class="tabpanel">
+      <div class="card">
+        <div class="section-title">🏡 后花园</div>
+        <p class="section-sub">每完成 5 次闯关获得一次普通元素抽取；累计记牢 100 个单词获得一次高级元素抽取。</p>
+        <div class="garden-layout">
+          <div class="garden-plot">
+            <div class="garden-grid" id="gardenGrid"></div>
+          </div>
+          <div class="garden-side">
+            <div class="section-title" style="font-size:15px;">🎒 待布置元素</div>
+            <div class="inv-list" id="invList"></div>
+            <div class="hint-note" id="invHint">从下方抽取元素，点选后再点击花园空格即可摆放；点击已摆放的元素可收回。</div>
+            <div class="draw-box">
+              <div class="count">🌱 普通抽取次数：<b id="commonCount">0</b></div>
+              <button class="btn gold" id="drawCommonBtn" style="width:100%;margin-bottom:8px;">抽取普通元素</button>
+              <div class="count">✨ 高级抽取次数：<b id="advancedCount">0</b></div>
+              <button class="btn gold" id="drawAdvancedBtn" style="width:100%;">抽取高级元素</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<button id="bubble" title="快速收词">🌰</button>
+
+<!-- 桌面小组件（通过 ?widget=1 打开） -->
+<div class="widget-shell hidden" id="widgetApp">
+  <div class="widget-card" id="widgetCard">
+    <div class="widget-top">
+      <span class="widget-label">WORD GARDEN</span>
+      <div class="widget-actions">
+        <button class="widget-open-main" id="widgetOpenMainBtn" title="打开主页面">+</button>
+        <button class="widget-collapse" id="widgetCollapseBtn" title="收起为气泡">－</button>
+      </div>
+    </div>
+    <div class="widget-count-row">
+      <span class="widget-count-num" id="widgetTodayCount">0</span>
+      <span class="widget-count-label">今日新增</span>
+    </div>
+    <div class="widget-total" id="widgetTotal">共收录 0 词</div>
+    <input id="widgetInput" class="widget-input" placeholder="生词 或 生词（例句）" autocomplete="off" />
+    <div class="widget-msg" id="widgetMsg"></div>
+  </div>
+  <button class="widget-bubble-btn hidden" id="widgetBubbleBtn" title="展开">🌰</button>
+</div>
+
+<!-- 快速添加 -->
+<div class="modal-overlay hidden" id="quickModal">
+  <div class="modal">
+    <h3>速记生词</h3>
+    <p class="hint">格式：<code>生词</code> 或 <code>生词（例句）</code></p>
+    <input id="quickInput" placeholder="例如：abandon（She abandoned the plan.）" autocomplete="off" />
+    <div class="modal-actions">
+      <button class="btn" id="quickCancel">取消</button>
+      <button class="btn primary" id="quickSave">收入词库</button>
+    </div>
+    <div class="msg" id="quickMsg"></div>
+  </div>
+</div>
+
+<!-- 添加/编辑词条 -->
+<div class="modal-overlay hidden" id="editModal">
+  <div class="modal">
+    <h3 id="editTitle">编辑生词</h3>
+    <label>单词</label>
+    <input id="editWord" placeholder="word" />
+    <label>释义（选填，用于释义类测试）</label>
+    <input id="editMeaning" placeholder="中文释义" />
+    <label>例句（选填，用于句子填空测试）</label>
+    <textarea id="editExample" placeholder="包含该单词的例句"></textarea>
+    <div class="modal-actions">
+      <button class="btn danger modal-delete" id="editDelete">删除</button>
+      <button class="btn" id="editCancel">取消</button>
+      <button class="btn primary" id="editSave">保存</button>
+    </div>
+    <div class="msg" id="editMsg"></div>
+  </div>
+</div>
+
+<!-- 新建账户 -->
+<div class="modal-overlay hidden" id="userModal">
+  <div class="modal">
+    <h3>新建账户</h3>
+    <p class="hint">每个账户会独立保存单词、训练记录和后花园。</p>
+    <input id="newUserName" placeholder="例如：我的词库" autocomplete="off" />
+    <div class="modal-actions">
+      <button class="btn" id="userCancel">取消</button>
+      <button class="btn primary" id="userCreate">创建账户</button>
+    </div>
+    <div class="msg" id="userMsg"></div>
+  </div>
+</div>
+
+<!-- 抽取揭晓 -->
+<div class="modal-overlay hidden" id="drawModal">
+  <div class="modal draw-reveal">
+    <h3 id="drawTitle">抽取元素</h3>
+    <div class="stage" id="drawStage"><span class="spin">🎲</span></div>
+    <p id="drawResultText" style="color:var(--ink-soft);font-size:14px;"></p>
+    <div class="modal-actions" style="justify-content:center;">
+      <button class="btn primary" id="drawClose">收下</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------- 数据 ---------------- */
+  const LEGACY_STORE_KEY = "wordGardenData_v1";
+  const USER_INDEX_KEY = "wordGardenUsers_v1";
+  const USER_DATA_PREFIX = "wordGardenUserData_v1_";
+  const APP_VERSION = 2;
+  const DEFAULT_USER_ID = "user_default";
+  const COMMON_ELEMENTS = ["🌱 嫩芽","🌷 郁金香","🌻 向日葵","🍀 四叶草","🌵 仙人掌","🍄 蘑菇","🪴 盆栽","🌾 麦穗","🌼 雏菊","🍃 绿叶","🪨 石子","🌸 樱花"];
+  const ADVANCED_ELEMENTS = ["🌳 大树","⛲ 喷泉","🦋 蝴蝶","🏡 小屋","🌈 彩虹","🦢 天鹅","🕊️ 白鸽","💐 花束","🏮 灯笼","🦄 独角兽","⭐ 星光","🎋 竹林"];
+  const GRID_SIZE = 40;
+  const MASTER_STREAK = 5;
+  const QUIZ_LEN = 20;
+  const OPTION_EMOJIS = ["🌰","🌿","🌸","🍯","✨","🌙","🧭","🍃"];
+  const FALLBACK_MEANINGS = [
+    "承认；让步；给予",
+    "监督；疏忽；遗漏",
+    "思维方式；心态",
+    "下属；从属的；次要的",
+    "放弃；抛弃；停止支持",
+    "坚持；持续存在",
+    "明显的；显而易见的",
+    "谨慎的；小心的",
+    "复杂的；难懂的",
+    "临时的；暂定的",
+    "促进；推动；提升",
+    "减少；降低；削弱",
+    "评估；评价；估量",
+    "必需的；不可或缺的",
+    "独特的；有特色的",
+    "相关的；有联系的",
+    "准确的；精确的",
+    "模糊的；不清楚的",
+    "可靠的；可信赖的",
+    "灵活的；可变通的",
+    "重要的；有意义的",
+    "相反的；对立的",
+    "逐渐的；渐进的",
+    "优先事项；优先权"
+  ];
+
+  function defaultState(){
+    return {
+      words: [],
+      garden: { placed: new Array(GRID_SIZE).fill(null), inventory: [] },
+      stats: { sessionCount: 0, commonDraws: 0, advancedDraws: 0, masteredMilestone: 0 }
+    };
+  }
+
+  function normalizeWord(w){
+    const lookupStatus = String(w && w.lookupStatus || "").trim();
+    return {
+      id: String(w && w.id || uid()),
+      word: String(w && w.word || "").trim(),
+      meaning: String(w && w.meaning || "").trim(),
+      example: String(w && w.example || "").trim(),
+      dateAdded: String(w && w.dateAdded || todayStr()).slice(0,10),
+      correct: Math.max(0, Number(w && w.correct) || 0),
+      wrong: Math.max(0, Number(w && w.wrong) || 0),
+      streak: Math.max(0, Number(w && w.streak) || 0),
+      lookupStatus: ["pending","done","failed"].includes(lookupStatus) ? lookupStatus : ""
+    };
+  }
+
+  function normalizeState(data){
+    const d = defaultState();
+    const source = data && typeof data==="object" ? data : {};
+    const placed = Array.isArray(source.garden && source.garden.placed) ? source.garden.placed.slice(0, GRID_SIZE) : [];
+    while(placed.length<GRID_SIZE) placed.push(null);
+    const stats = Object.assign({}, d.stats, source.stats || {});
+    return {
+      words: Array.isArray(source.words) ? source.words.map(normalizeWord).filter(w=>w.word) : [],
+      garden: {
+        placed: placed.map(item => item ? String(item) : null),
+        inventory: Array.isArray(source.garden && source.garden.inventory) ? source.garden.inventory.map(String) : []
+      },
+      stats: {
+        sessionCount: Math.max(0, Number(stats.sessionCount) || 0),
+        commonDraws: Math.max(0, Number(stats.commonDraws) || 0),
+        advancedDraws: Math.max(0, Number(stats.advancedDraws) || 0),
+        masteredMilestone: Math.max(0, Number(stats.masteredMilestone) || 0)
+      }
+    };
+  }
+
+  function userDataKey(userId){ return USER_DATA_PREFIX + encodeURIComponent(userId); }
+
+  function defaultUserIndex(){
+    return {
+      version: APP_VERSION,
+      currentUserId: DEFAULT_USER_ID,
+      users: [{id:DEFAULT_USER_ID, name:"默认账户", createdAt:todayStr(), updatedAt:todayStr()}]
+    };
+  }
+
+  function normalizeUserIndex(index){
+    const d = defaultUserIndex();
+    const rawUsers = Array.isArray(index && index.users) ? index.users : d.users;
+    const seen = new Set();
+    const users = rawUsers.map((u, idx)=>{
+      const id = String(u && u.id || (idx===0 ? DEFAULT_USER_ID : uid())).trim() || uid();
+      if(seen.has(id)) return null;
+      seen.add(id);
+      return {
+        id,
+        name: String(u && u.name || (idx===0 ? "默认账户" : "新账户")).trim() || "未命名账户",
+        createdAt: String(u && u.createdAt || todayStr()).slice(0,10),
+        updatedAt: String(u && u.updatedAt || todayStr()).slice(0,10)
+      };
+    }).filter(Boolean);
+    if(users.length===0) users.push(d.users[0]);
+    const currentUserId = users.some(u=>u.id===(index && index.currentUserId)) ? index.currentUserId : users[0].id;
+    return {version:APP_VERSION, currentUserId, users};
+  }
+
+  function loadUserIndex(){
+    try{
+      const raw = storageGetItem(USER_INDEX_KEY);
+      if(raw) return normalizeUserIndex(JSON.parse(raw));
+    }catch(e){}
+    const index = defaultUserIndex();
+    try{
+      const legacyRaw = storageGetItem(LEGACY_STORE_KEY);
+      if(legacyRaw && !storageGetItem(userDataKey(DEFAULT_USER_ID))){
+        storageSetItem(userDataKey(DEFAULT_USER_ID), JSON.stringify(normalizeState(JSON.parse(legacyRaw))));
+      }
+    }catch(e){}
+    storageSetItem(USER_INDEX_KEY, JSON.stringify(index));
+    return index;
+  }
+
+  function saveUserIndex(){
+    storageSetItem(USER_INDEX_KEY, JSON.stringify(userIndex));
+  }
+
+  function currentUser(){
+    return userIndex.users.find(u=>u.id===userIndex.currentUserId) || userIndex.users[0];
+  }
+
+  function loadState(){
+    try{
+      const raw = storageGetItem(userDataKey(currentUser().id));
+      return raw ? normalizeState(JSON.parse(raw)) : defaultState();
+    }catch(e){ return defaultState(); }
+  }
+
+  function saveState(){
+    const user = currentUser();
+    state = normalizeState(state);
+    storageSetItem(userDataKey(user.id), JSON.stringify(state));
+    user.updatedAt = todayStr();
+    saveUserIndex();
+  }
+
+  migrateLocalStorageToDesktop();
+  let userIndex = loadUserIndex();
+  let state = loadState();
+
+  function todayStr(){ return new Date().toISOString().slice(0,10); }
+  function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+  function escapeHtml(s){ return (s||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+  function escapeRegex(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"); }
+  function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+  function sample(arr,n){ return shuffle(arr).slice(0,n); }
+  function uniqueText(arr){
+    const seen = new Set();
+    return arr.map(x=>String(x || "").trim()).filter(x=>{
+      if(!x || seen.has(x)) return false;
+      seen.add(x);
+      return true;
+    });
+  }
+  function buildBlankDisplay(example, word){
+    const re = new RegExp(escapeRegex(word), "gi");
+    let out = "", last = 0, matched = false;
+    String(example || "").replace(re, (match, offset)=>{
+      matched = true;
+      out += escapeHtml(example.slice(last, offset));
+      out += '<span class="blank">____</span>';
+      last = offset + match.length;
+      return match;
+    });
+    return matched ? out + escapeHtml(example.slice(last)) : escapeHtml(example);
+  }
+
+  function desktopStorage(){
+    return window.wordGardenStorage && typeof window.wordGardenStorage.getItem==="function" ? window.wordGardenStorage : null;
+  }
+  function storageGetItem(key){
+    const ds = desktopStorage();
+    if(ds){
+      const value = ds.getItem(key);
+      if(value !== null && value !== undefined) return value;
+    }
+    try{ return localStorage.getItem(key); }catch(e){ return null; }
+  }
+  function storageSetItem(key, value){
+    const text = String(value);
+    const ds = desktopStorage();
+    if(ds) ds.setItem(key, text);
+    try{ localStorage.setItem(key, text); }catch(e){}
+  }
+  function storageRemoveItem(key){
+    const ds = desktopStorage();
+    if(ds && typeof ds.removeItem==="function") ds.removeItem(key);
+    try{ localStorage.removeItem(key); }catch(e){}
+  }
+  function migrateLocalStorageToDesktop(){
+    const ds = desktopStorage();
+    if(!ds) return;
+    try{
+      const indexRaw = localStorage.getItem(USER_INDEX_KEY);
+      if(indexRaw && !ds.getItem(USER_INDEX_KEY)) ds.setItem(USER_INDEX_KEY, indexRaw);
+      const legacyRaw = localStorage.getItem(LEGACY_STORE_KEY);
+      if(legacyRaw && !ds.getItem(LEGACY_STORE_KEY)) ds.setItem(LEGACY_STORE_KEY, legacyRaw);
+      const index = indexRaw ? normalizeUserIndex(JSON.parse(indexRaw)) : null;
+      if(index){
+        index.users.forEach(user=>{
+          const key = userDataKey(user.id);
+          const value = localStorage.getItem(key);
+          if(value && !ds.getItem(key)) ds.setItem(key, value);
+        });
+      }
+    }catch(e){}
+  }
+
+  /* ---------------- 词条管理 ---------------- */
+  function findWordByText(text){
+    const low = text.trim().toLowerCase();
+    return state.words.find(w => w.word.trim().toLowerCase() === low);
+  }
+
+  function addOrUpdateWord({word, meaning, example}){
+    word = (word||"").trim();
+    if(!word) return {ok:false, msg:"请输入单词内容"};
+    const existing = findWordByText(word);
+    if(existing){
+      if(example && !existing.example) existing.example = example;
+      if(meaning && !existing.meaning) existing.meaning = meaning;
+      existing.lookupStatus = (!existing.meaning || !existing.example) ? "pending" : "";
+      saveState();
+      return {ok:true, msg:"该词已存在，已为你补充信息", updated:true, id:existing.id};
+    }
+    const next = {
+      id: uid(), word, meaning: meaning||"", example: example||"",
+      dateAdded: todayStr(), correct:0, wrong:0, streak:0,
+      lookupStatus: (meaning && example) ? "" : "pending"
+    };
+    state.words.push(next);
+    saveState();
+    return {ok:true, msg:"已收入词库，正在自动补全…", id:next.id};
+  }
+
+  function parseQuickInput(raw){
+    const s = (raw||"").trim();
+    if(!s) return null;
+    let openIdx=-1, openChar=null;
+    for(const ch of ["（","("]){
+      const idx = s.indexOf(ch);
+      if(idx!==-1 && (openIdx===-1 || idx<openIdx)){ openIdx=idx; openChar=ch; }
+    }
+    if(openIdx===-1) return {word:s, example:""};
+    const closeChar = openChar==="（" ? "）" : ")";
+    let closeIdx = s.lastIndexOf(closeChar);
+    if(closeIdx===-1 || closeIdx<openIdx) closeIdx = s.length;
+    const word = s.slice(0, openIdx).trim();
+    const example = s.slice(openIdx+1, closeIdx).trim();
+    if(!word) return null;
+    return {word, example};
+  }
+
+  function isMastered(w){ return (w.streak||0) >= MASTER_STREAK; }
+  function masteredCount(){ return state.words.filter(isMastered).length; }
+
+  async function fetchJson(url){
+    const res = await fetch(url, {cache:"no-store"});
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    return res.json();
+  }
+
+  function firstDefinition(entry){
+    const meanings = Array.isArray(entry && entry.meanings) ? entry.meanings : [];
+    for(const meaning of meanings){
+      const definitions = Array.isArray(meaning.definitions) ? meaning.definitions : [];
+      for(const item of definitions){
+        if(item && item.definition) return String(item.definition).trim();
+      }
+    }
+    return "";
+  }
+
+  function firstExample(entry){
+    const meanings = Array.isArray(entry && entry.meanings) ? entry.meanings : [];
+    for(const meaning of meanings){
+      const definitions = Array.isArray(meaning.definitions) ? meaning.definitions : [];
+      for(const item of definitions){
+        if(item && item.example) return String(item.example).trim();
+      }
+    }
+    return "";
+  }
+
+  async function translateToChinese(text){
+    if(!text) return "";
+    try{
+      const url = "https://api.mymemory.translated.net/get?q=" + encodeURIComponent(text) + "&langpair=en|zh-CN";
+      const data = await fetchJson(url);
+      const translated = data && data.responseData && data.responseData.translatedText;
+      return translated ? String(translated).trim() : "";
+    }catch(e){
+      return "";
+    }
+  }
+
+  async function lookupWordInfo(word, seedExample=""){
+    const clean = String(word || "").trim();
+    if(!clean) return null;
+    const dictUrl = "https://api.dictionaryapi.dev/api/v2/entries/en/" + encodeURIComponent(clean);
+    const entries = await fetchJson(dictUrl);
+    const entry = Array.isArray(entries) ? entries[0] : null;
+    const definition = firstDefinition(entry);
+    const sourceExample = firstExample(entry) || String(seedExample || "").trim();
+    const example = sourceExample || "I added \"" + clean + "\" to my word garden today.";
+    const translatedDefinition = await translateToChinese(definition);
+    const translatedExample = definition ? "" : await translateToChinese(sourceExample);
+    return {
+      meaning: translatedDefinition || definition || translatedExample,
+      example
+    };
+  }
+
+  function scheduleAutoFill(wordId){
+    const target = state.words.find(w=>w.id===wordId);
+    if(!target || (target.meaning && target.example)) return;
+    target.lookupStatus = "pending";
+    saveState();
+    renderBank();
+    lookupWordInfo(target.word, target.example).then(info=>{
+      const w = state.words.find(item=>item.id===wordId);
+      if(!w || !info) return;
+      if(info.meaning && !w.meaning) w.meaning = info.meaning;
+      if(info.example && !w.example) w.example = info.example;
+      w.lookupStatus = w.meaning ? "done" : "failed";
+      saveState();
+      renderBank();
+      refreshWidgetStats();
+    }).catch(()=>{
+      const w = state.words.find(item=>item.id===wordId);
+      if(!w) return;
+      w.lookupStatus = "failed";
+      saveState();
+      renderBank();
+    });
+  }
+
+  /* ---------------- 视图切换 ---------------- */
+  const tabs = document.querySelectorAll(".tab");
+  const panels = document.querySelectorAll(".tabpanel");
+  tabs.forEach(t => t.addEventListener("click", () => {
+    tabs.forEach(x=>x.classList.remove("active"));
+    panels.forEach(x=>x.classList.remove("active"));
+    t.classList.add("active");
+    document.getElementById("tab-"+t.dataset.tab).classList.add("active");
+    if(t.dataset.tab==="quiz") renderQuizIntro();
+    if(t.dataset.tab==="garden") renderGarden();
+    if(t.dataset.tab==="book") renderBank();
+  }));
+
+  function switchTab(name){
+    document.querySelector('.tab[data-tab="'+name+'"]').click();
+  }
+
+  function refreshBadges(){
+    document.getElementById("drawBadge").textContent = state.stats.commonDraws + state.stats.advancedDraws;
+  }
+
+  function renderUserSwitcher(){
+    const select = document.getElementById("userSelect");
+    if(!select) return;
+    select.innerHTML = userIndex.users.map(u=>`<option value="${escapeHtml(u.id)}">${escapeHtml(u.name)}</option>`).join("");
+    select.value = currentUser().id;
+  }
+
+  function renderCurrentView(){
+    refreshBadges();
+    renderUserSwitcher();
+    renderBank();
+    renderQuizIntro();
+    renderGarden();
+    refreshWidgetStats();
+  }
+
+  function switchUser(userId){
+    if(!userIndex.users.some(u=>u.id===userId)) return;
+    userIndex.currentUserId = userId;
+    saveUserIndex();
+    state = loadState();
+    quiz = null;
+    selectedInvIdx = null;
+    renderCurrentView();
+  }
+
+  const userModal = document.getElementById("userModal");
+  const newUserName = document.getElementById("newUserName");
+  const userMsg = document.getElementById("userMsg");
+
+  function openUserModal(){
+    if(!userModal) return;
+    userMsg.textContent = "";
+    userMsg.className = "msg";
+    newUserName.value = "";
+    userModal.classList.remove("hidden");
+    setTimeout(()=>newUserName.focus(), 0);
+  }
+
+  function closeUserModal(){
+    if(userModal) userModal.classList.add("hidden");
+  }
+
+  function createUser(){
+    const name = (newUserName.value || "").trim();
+    if(!name){
+      userMsg.textContent = "账户名称不能为空";
+      userMsg.className = "msg error";
+      newUserName.focus();
+      return;
+    }
+    if(userIndex.users.some(u=>u.name===name)){
+      userMsg.textContent = "已经有同名账户";
+      userMsg.className = "msg error";
+      newUserName.focus();
+      return;
+    }
+    const user = {id:"user_"+uid(), name, createdAt:todayStr(), updatedAt:todayStr()};
+    userIndex.users.push(user);
+    userIndex.currentUserId = user.id;
+    saveUserIndex();
+    state = defaultState();
+    saveState();
+    quiz = null;
+    selectedInvIdx = null;
+    closeUserModal();
+    renderCurrentView();
+  }
+
+  function reloadFromStorage(){
+    userIndex = loadUserIndex();
+    state = loadState();
+    selectedInvIdx = null;
+    renderCurrentView();
+  }
+
+  const userSelect = document.getElementById("userSelect");
+  if(userSelect) userSelect.addEventListener("change", (e)=>switchUser(e.target.value));
+  const addUserBtn = document.getElementById("addUserBtn");
+  if(addUserBtn) addUserBtn.addEventListener("click", openUserModal);
+  document.getElementById("userCancel").addEventListener("click", closeUserModal);
+  document.getElementById("userCreate").addEventListener("click", createUser);
+  newUserName.addEventListener("keydown", (e)=>{
+    if(e.key==="Enter") createUser();
+    if(e.key==="Escape") closeUserModal();
+  });
+
+  /* ---------------- 单词本渲染 ---------------- */
+  function renderBank(){
+    const box = document.getElementById("bankContent");
+    const q = (document.getElementById("searchInput").value||"").trim().toLowerCase();
+    let words = state.words.slice().sort((a,b)=> b.dateAdded.localeCompare(a.dateAdded) || 0);
+    if(q) words = words.filter(w => w.word.toLowerCase().includes(q));
+
+    if(state.words.length===0){
+      box.innerHTML = '<div class="empty-state"><span class="big">🌰</span>还没有收藏的单词<br>点击右下角浮动按钮，或使用「＋ 添加生词」开始积累吧</div>';
+      return;
+    }
+    if(words.length===0){
+      box.innerHTML = '<div class="empty-state"><span class="big">🔍</span>没有找到匹配的单词</div>';
+      return;
+    }
+
+    const groups = {};
+    words.forEach(w=>{ (groups[w.dateAdded] = groups[w.dateAdded]||[]).push(w); });
+    const dates = Object.keys(groups).sort((a,b)=>b.localeCompare(a));
+
+    box.innerHTML = dates.map(date=>{
+      const rows = groups[date].map(w=>{
+        const mastered = isMastered(w);
+        const badge = mastered ? '<span class="badge mastered">🌟 已掌握</span>' : ((w.correct||0)+(w.wrong||0)===0 ? '<span class="badge new">新词</span>' : "");
+        return `<div class="word-row" data-id="${w.id}">
+          <div class="word-main">
+            <div class="word-top"><span class="word-text">${escapeHtml(w.word)}</span>${badge}</div>
+            ${w.meaning ? `<div class="word-meaning">${escapeHtml(w.meaning)}</div>` : ""}
+            ${w.example ? `<div class="word-example">${escapeHtml(w.example)}</div>` : ""}
+            ${w.lookupStatus==="pending" ? `<div class="word-pending">正在自动补全释义和例句…</div>` : ""}
+            ${w.lookupStatus==="failed" && (!w.meaning || !w.example) ? `<div class="word-pending">自动补全暂时失败，可稍后编辑或重新添加。</div>` : ""}
+          </div>
+          <div class="word-stats">✔${w.correct||0} ✘${w.wrong||0}<br>连对${w.streak||0}</div>
+          <div class="word-actions">
+            <button class="icon-btn edit-word" title="编辑">✏️</button>
+          </div>
+        </div>`;
+      }).join("");
+      return `<div class="date-group"><div class="date-head">${date} · ${groups[date].length} 词</div><div class="word-list">${rows}</div></div>`;
+    }).join("");
+
+    box.querySelectorAll(".edit-word").forEach(btn=>{
+      btn.addEventListener("click", (e)=>{
+        const id = e.target.closest(".word-row").dataset.id;
+        openEditModal(id);
+      });
+    });
+  }
+  document.getElementById("searchInput").addEventListener("input", renderBank);
+
+  /* ---------------- 快速添加弹窗 ---------------- */
+  const quickModal = document.getElementById("quickModal");
+  const quickInput = document.getElementById("quickInput");
+  const quickMsg = document.getElementById("quickMsg");
+  document.getElementById("bubble").addEventListener("click", ()=>{
+    quickInput.value=""; quickMsg.textContent=""; quickMsg.className="msg";
+    quickModal.classList.remove("hidden");
+    setTimeout(()=>quickInput.focus(), 50);
+  });
+  document.getElementById("quickCancel").addEventListener("click", ()=> quickModal.classList.add("hidden"));
+  quickModal.addEventListener("click", (e)=>{ if(e.target===quickModal) quickModal.classList.add("hidden"); });
+  function submitQuick(){
+    const parsed = parseQuickInput(quickInput.value);
+    if(!parsed){ quickMsg.textContent="请输入内容，例如：apple 或 apple（I ate an apple.）"; quickMsg.className="msg error"; return; }
+    const res = addOrUpdateWord(parsed);
+    quickMsg.textContent = res.msg;
+    quickMsg.className = "msg" + (res.ok? "" : " error");
+    if(res.ok){
+      renderBank();
+      scheduleAutoFill(res.id);
+      setTimeout(()=>{ quickModal.classList.add("hidden"); }, 500);
+    }
+  }
+  document.getElementById("quickSave").addEventListener("click", submitQuick);
+  quickInput.addEventListener("keydown", (e)=>{ if(e.key==="Enter") submitQuick(); });
+
+  /* ---------------- 编辑/新增弹窗 ---------------- */
+  const editModal = document.getElementById("editModal");
+  const editWord = document.getElementById("editWord");
+  const editMeaning = document.getElementById("editMeaning");
+  const editExample = document.getElementById("editExample");
+  const editMsg = document.getElementById("editMsg");
+  const editDelete = document.getElementById("editDelete");
+  let editingId = null;
+
+  function openEditModal(id){
+    editingId = id;
+    const w = state.words.find(x=>x.id===id);
+    document.getElementById("editTitle").textContent = "编辑生词";
+    editWord.value = w.word; editMeaning.value = w.meaning||""; editExample.value = w.example||"";
+    editMsg.textContent=""; editDelete.style.display="inline-block";
+    editModal.classList.remove("hidden");
+  }
+  document.getElementById("openAddModal").addEventListener("click", ()=>{
+    editingId = null;
+    document.getElementById("editTitle").textContent = "添加生词";
+    editWord.value=""; editMeaning.value=""; editExample.value="";
+    editMsg.textContent=""; editDelete.style.display="none";
+    editModal.classList.remove("hidden");
+    setTimeout(()=>editWord.focus(),50);
+  });
+  document.getElementById("editCancel").addEventListener("click", ()=> editModal.classList.add("hidden"));
+  editModal.addEventListener("click", (e)=>{ if(e.target===editModal) editModal.classList.add("hidden"); });
+
+  document.getElementById("editSave").addEventListener("click", ()=>{
+    const word = editWord.value.trim();
+    if(!word){ editMsg.textContent="单词不能为空"; editMsg.className="msg error"; return; }
+    if(editingId){
+      const w = state.words.find(x=>x.id===editingId);
+      const dup = findWordByText(word);
+      if(dup && dup.id!==editingId){ editMsg.textContent="已存在同名单词"; editMsg.className="msg error"; return; }
+      w.word=word; w.meaning=editMeaning.value.trim(); w.example=editExample.value.trim();
+      w.lookupStatus = (!w.meaning || !w.example) ? "pending" : "";
+      saveState();
+      scheduleAutoFill(w.id);
+    }else{
+      const res = addOrUpdateWord({word, meaning:editMeaning.value.trim(), example:editExample.value.trim()});
+      if(!res.ok){ editMsg.textContent=res.msg; editMsg.className="msg error"; return; }
+      scheduleAutoFill(res.id);
+    }
+    editModal.classList.add("hidden");
+    renderBank();
+  });
+  editDelete.addEventListener("click", ()=>{
+    if(!editingId) return;
+    state.words = state.words.filter(x=>x.id!==editingId);
+    saveState();
+    editModal.classList.add("hidden");
+    renderBank();
+  });
+
+  /* ---------------- 训练闯关 ---------------- */
+  let quiz = null; // {questions, index, correct, wrong, newlyMastered:Set}
+
+  function trainableWords(){
+    return state.words.filter(w=>(w.meaning && w.meaning.trim()) || (w.example && w.example.trim()));
+  }
+
+  function activePool(){
+    const trainable = trainableWords();
+    const active = trainable.filter(w=>!isMastered(w));
+    return active.length>0 ? active : trainable;
+  }
+
+  function weightedPick(pool, excludeId){
+    let candidates = pool.filter(w=>w.id!==excludeId);
+    if(candidates.length===0) candidates = pool;
+    const weights = candidates.map(w=> 1 + (w.wrong||0)*2);
+    const total = weights.reduce((a,b)=>a+b,0);
+    let r = Math.random()*total;
+    for(let i=0;i<candidates.length;i++){
+      r -= weights[i];
+      if(r<=0) return candidates[i];
+    }
+    return candidates[candidates.length-1];
+  }
+
+  function buildMeaningOptions(target){
+    const correct = String(target.meaning || "").trim();
+    const fromWords = state.words
+      .filter(w=>w.id!==target.id && w.meaning && w.meaning.trim())
+      .map(w=>w.meaning);
+    const distractors = uniqueText(fromWords.concat(FALLBACK_MEANINGS)).filter(m=>m!==correct);
+    return shuffle([correct].concat(sample(distractors, 3)));
+  }
+
+  function buildWordOptions(target){
+    const correct = String(target.word || "").trim();
+    const fromWords = state.words
+      .filter(w=>w.id!==target.id && w.word && w.word.trim())
+      .map(w=>w.word);
+    const distractors = uniqueText(fromWords).filter(m=>m.toLowerCase()!==correct.toLowerCase());
+    return shuffle([correct].concat(sample(distractors, 3)));
+  }
+
+  function buildQuestion(target){
+    if(target.meaning && target.meaning.trim()){
+      return {
+        type:"meaning-choice",
+        label:"中文释义选择",
+        display:escapeHtml(target.word),
+        sentence:false,
+        options:buildMeaningOptions(target),
+        answer:String(target.meaning || "").trim(),
+        wordId:target.id
+      };
+    }
+
+    return {
+      type:"blank",
+      label:"例句填词",
+      display:buildBlankDisplay(target.example, target.word),
+      sentence:true,
+      options:buildWordOptions(target),
+      answer:String(target.word || "").trim(),
+      wordId:target.id
+    };
+  }
+
+  function generateQuiz(){
+    const pool = activePool();
+    const qs = [];
+    let lastId = null;
+    for(let i=0;i<QUIZ_LEN;i++){
+      const target = weightedPick(pool, lastId);
+      lastId = target.id;
+      qs.push(buildQuestion(target));
+    }
+    return qs;
+  }
+
+  function renderQuizIntro(){
+    const card = document.getElementById("quizCard");
+    const total = state.words.length;
+    const trainable = trainableWords();
+    const mastered = trainable.filter(isMastered).length;
+    const active = trainable.length - mastered;
+    const pending = total - trainable.length;
+    card.innerHTML = `
+      <div class="section-title">🎯 训练闯关</div>
+      <p class="section-sub">每轮 ${QUIZ_LEN} 题，有中文释义就选释义；没有释义就根据例句填词。只有两者都没有的词才不会进入训练。</p>
+      <div class="quiz-stats">
+        <div class="stat-pill"><b>${total}</b><span>词库总数</span></div>
+        <div class="stat-pill"><b>${trainable.length}</b><span>可训练</span></div>
+        <div class="stat-pill"><b>${active}</b><span>待巩固</span></div>
+        <div class="stat-pill"><b>${mastered}</b><span>🌟已掌握</span></div>
+        <div class="stat-pill"><b>${pending}</b><span>待补全</span></div>
+      </div>
+      <div class="quiz-intro">
+        <div class="big">🚩</div>
+        ${total===0 ? '<p style="color:var(--ink-faint)">词库是空的，先去单词本添加一些生词吧。</p><button class="btn primary" id="goBank">前往单词本</button>'
+        : trainable.length===0 ? '<p style="color:var(--ink-faint)">这些词还没有中文释义，等自动补全完成，或点铅笔手动补一下，就能开始训练。</p><button class="btn primary" id="goBank">前往单词本</button>'
+        : `<button class="btn gold" id="startQuizBtn" style="font-size:16px;padding:14px 34px;">开始闯关</button>`}
+      </div>
+    `;
+    const goBank = document.getElementById("goBank");
+    if(goBank) goBank.addEventListener("click", ()=>switchTab("book"));
+    const startBtn = document.getElementById("startQuizBtn");
+    if(startBtn) startBtn.addEventListener("click", startQuiz);
+  }
+
+  function startQuiz(){
+    if(activePool().length===0){
+      renderQuizIntro();
+      return;
+    }
+    quiz = { questions: generateQuiz(), index:0, correct:0, wrong:0, newlyMastered: new Set() };
+    renderQuizQuestion();
+  }
+
+  function recordAnswer(wordId, isCorrect){
+    const w = state.words.find(x=>x.id===wordId);
+    if(!w) return;
+    if(isCorrect){
+      w.correct = (w.correct||0)+1;
+      w.streak = (w.streak||0)+1;
+      if(w.streak===MASTER_STREAK) quiz.newlyMastered.add(w.word);
+    }else{
+      w.wrong = (w.wrong||0)+1;
+      w.streak = 0;
+    }
+    saveState();
+  }
+
+  function renderQuizQuestion(){
+    const card = document.getElementById("quizCard");
+    const q = quiz.questions[quiz.index];
+    const pct = Math.round((quiz.index/QUIZ_LEN)*100);
+
+    let bodyHtml;
+    if(q.type==="selfcheck"){
+      bodyHtml = `
+        <div class="selfcheck-wrap">
+          <div class="selfcheck-word">${escapeHtml(q.word)}</div>
+          <div class="selfcheck-reveal" id="scReveal"></div>
+          <div class="selfcheck-btns">
+            <button class="btn primary" id="scKnow">😊 我记得</button>
+            <button class="btn danger" id="scDontKnow">🤔 还不熟悉</button>
+          </div>
+        </div>`;
+    }else{
+      bodyHtml = `
+        <div class="quiz-display ${q.sentence?'sentence':''}">${q.display}</div>
+        <div class="options-grid">
+          ${q.options.map((opt,i)=>`<button class="opt-btn meaning-opt" data-idx="${i}"><span class="option-emoji">${OPTION_EMOJIS[i % OPTION_EMOJIS.length]}</span><span class="option-text">${escapeHtml(opt)}</span></button>`).join("")}
+        </div>`;
+    }
+
+    card.innerHTML = `
+      <div class="quiz-topline"><span>第 ${quiz.index+1} / ${QUIZ_LEN} 题</span><span>✔${quiz.correct} ✘${quiz.wrong}</span></div>
+      <div class="quiz-progress-wrap"><div class="quiz-progress-bar" style="width:${pct}%"></div></div>
+      <div class="quiz-type-label">${q.label}</div>
+      ${bodyHtml}
+      <div class="next-row"><button class="btn primary" id="nextBtn" style="display:none;">下一题 →</button></div>
+    `;
+
+    const nextBtn = document.getElementById("nextBtn");
+    function goNext(){
+      quiz.index++;
+      if(quiz.index>=QUIZ_LEN) finishQuiz();
+      else renderQuizQuestion();
+    }
+    nextBtn.addEventListener("click", goNext);
+
+    if(q.type==="selfcheck"){
+      let answered = false;
+      const reveal = document.getElementById("scReveal");
+      function reveal_(){
+        reveal.innerHTML = (q.meaning? escapeHtml(q.meaning)+"<br>" : "") + (q.example? '<span style="font-style:italic;">'+escapeHtml(q.example)+'</span>' : (q.meaning?"":"（这个词还没有释义或例句）"));
+      }
+      function finalize(isCorrect){
+        if(answered) return; answered=true;
+        reveal_();
+        recordAnswer(q.wordId, isCorrect);
+        if(isCorrect) quiz.correct++; else quiz.wrong++;
+        document.getElementById("scKnow").disabled=true;
+        document.getElementById("scDontKnow").disabled=true;
+        nextBtn.style.display="inline-block";
+      }
+      document.getElementById("scKnow").addEventListener("click", ()=>finalize(true));
+      document.getElementById("scDontKnow").addEventListener("click", ()=>finalize(false));
+    }else{
+      const btns = card.querySelectorAll(".opt-btn");
+      let answered = false;
+      btns.forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          if(answered) return; answered=true;
+          const chosen = q.options[+btn.dataset.idx];
+          const isCorrect = chosen===q.answer;
+          btns.forEach(b=>{
+            b.disabled = true;
+            if(q.options[+b.dataset.idx]===q.answer) b.classList.add("correct");
+          });
+          if(!isCorrect) btn.classList.add("wrong");
+          recordAnswer(q.wordId, isCorrect);
+          if(isCorrect) quiz.correct++; else quiz.wrong++;
+          nextBtn.style.display="inline-block";
+        });
+      });
+    }
+  }
+
+  function finishQuiz(){
+    state.stats.sessionCount++;
+    let commonEarned = 0, advancedEarned = 0;
+    if(state.stats.sessionCount % 5 === 0){ state.stats.commonDraws++; commonEarned++; }
+    const totalMastered = masteredCount();
+    const crossed = Math.floor(totalMastered/100) - state.stats.masteredMilestone;
+    if(crossed>0){ state.stats.advancedDraws += crossed; state.stats.masteredMilestone += crossed; advancedEarned += crossed; }
+    saveState();
+    refreshBadges();
+
+    const card = document.getElementById("quizCard");
+    const acc = Math.round((quiz.correct/QUIZ_LEN)*100);
+    const chips = Array.from(quiz.newlyMastered).map(w=>`<span>🌟 ${escapeHtml(w)}</span>`).join("");
+    card.innerHTML = `
+      <div class="summary">
+        <div style="font-size:44px;">${acc>=80?"🎉":acc>=50?"🙂":"🌱"}</div>
+        <h3>本轮闯关完成</h3>
+        <div class="score">${quiz.correct} / ${QUIZ_LEN}</div>
+        <div style="color:var(--ink-faint);">正确率 ${acc}%</div>
+        ${chips ? `<div class="reward-line">本轮新掌握：</div><div class="mastered-chips">${chips}</div>` : ""}
+        ${(commonEarned||advancedEarned) ? `<div class="reward-line">🎁 获得抽取机会：${commonEarned? "普通×"+commonEarned+" ":""}${advancedEarned? "高级×"+advancedEarned:""}</div>` : ""}
+        <div class="summary-actions">
+          <button class="btn" id="backBtn">返回</button>
+          <button class="btn gold" id="gardenBtn">去后花园看看</button>
+          <button class="btn primary" id="againBtn">再来一轮</button>
+        </div>
+      </div>`;
+    document.getElementById("backBtn").addEventListener("click", renderQuizIntro);
+    document.getElementById("againBtn").addEventListener("click", startQuiz);
+    document.getElementById("gardenBtn").addEventListener("click", ()=>switchTab("garden"));
+    renderBank();
+  }
+
+  /* ---------------- 后花园 ---------------- */
+  let selectedInvIdx = null;
+
+  function renderGarden(){
+    refreshBadges();
+    document.getElementById("commonCount").textContent = state.stats.commonDraws;
+    document.getElementById("advancedCount").textContent = state.stats.advancedDraws;
+    document.getElementById("drawCommonBtn").disabled = state.stats.commonDraws<=0;
+    document.getElementById("drawAdvancedBtn").disabled = state.stats.advancedDraws<=0;
+
+    const grid = document.getElementById("gardenGrid");
+    grid.innerHTML = "";
+    state.garden.placed.forEach((el, idx)=>{
+      const cell = document.createElement("div");
+      cell.className = "garden-cell" + (el? " filled":"");
+      cell.textContent = el ? el.split(" ")[0] : "";
+      cell.title = el ? el : "空地";
+      cell.addEventListener("click", ()=>{
+        if(el){
+          state.garden.inventory.push(el);
+          state.garden.placed[idx] = null;
+          saveState(); renderGarden();
+        }else if(selectedInvIdx!==null){
+          const item = state.garden.inventory[selectedInvIdx];
+          if(item){
+            state.garden.placed[idx] = item;
+            state.garden.inventory.splice(selectedInvIdx,1);
+            selectedInvIdx = null;
+            saveState(); renderGarden();
+          }
+        }
+      });
+      grid.appendChild(cell);
+    });
+
+    const inv = document.getElementById("invList");
+    if(state.garden.inventory.length===0){
+      inv.innerHTML = '<span style="color:var(--ink-faint);font-size:13px;">暂无待布置元素，快去完成闯关赚取抽取机会吧</span>';
+    }else{
+      inv.innerHTML = state.garden.inventory.map((el,i)=>`<button class="inv-chip ${i===selectedInvIdx?'selected':''}" data-i="${i}" title="${el}">${el.split(" ")[0]}</button>`).join("");
+      inv.querySelectorAll(".inv-chip").forEach(chip=>{
+        chip.addEventListener("click", ()=>{
+          const i = +chip.dataset.i;
+          selectedInvIdx = (selectedInvIdx===i) ? null : i;
+          renderGarden();
+        });
+      });
+    }
+  }
+
+  function doDraw(list, isAdvanced){
+    const key = isAdvanced ? "advancedDraws" : "commonDraws";
+    if(state.stats[key]<=0) return;
+    state.stats[key]--;
+    saveState();
+    refreshBadges();
+    const result = list[Math.floor(Math.random()*list.length)];
+    const modal = document.getElementById("drawModal");
+    const stage = document.getElementById("drawStage");
+    const title = document.getElementById("drawTitle");
+    const text = document.getElementById("drawResultText");
+    title.textContent = isAdvanced ? "✨ 高级抽取" : "🌱 普通抽取";
+    stage.innerHTML = '<span class="spin">🎲</span>';
+    text.textContent = "";
+    modal.classList.remove("hidden");
+    setTimeout(()=>{
+      stage.innerHTML = `<span style="font-size:56px;">${result.split(" ")[0]}</span>`;
+      text.textContent = "获得：" + result;
+      state.garden.inventory.push(result);
+      saveState();
+    }, 700);
+  }
+  document.getElementById("drawCommonBtn").addEventListener("click", ()=>doDraw(COMMON_ELEMENTS,false));
+  document.getElementById("drawAdvancedBtn").addEventListener("click", ()=>doDraw(ADVANCED_ELEMENTS,true));
+  document.getElementById("drawClose").addEventListener("click", ()=>{
+    document.getElementById("drawModal").classList.add("hidden");
+    renderGarden();
+  });
+
+  /* ---------------- 桌面小组件 ---------------- */
+  const isWidgetMode = new URLSearchParams(location.search).get("widget") === "1";
+
+  function openWidgetWindow(){
+    if(window.wordGardenDesktop && typeof window.wordGardenDesktop.openWidget==="function"){
+      window.wordGardenDesktop.openWidget();
+      return;
+    }
+    const url = location.href.split("?")[0] + "?widget=1";
+    const width = 244;
+    const height = 92;
+    const left = Math.max(0, (screen.availWidth || 900) - width - 24);
+    const top = Math.max(0, (screen.availHeight || 700) - height - 20);
+    const features = `width=${width},height=${height},left=${left},top=${top},resizable=yes,toolbar=no,menubar=no,location=no,status=no`;
+    const w = window.open(url, "wordGardenWidget", features);
+    if(!w){
+      alert("小窗口被浏览器拦截了，请允许弹出窗口后再试一次。");
+    }
+  }
+  const openWidgetBtn = document.getElementById("openWidgetBtn");
+  if(openWidgetBtn) openWidgetBtn.addEventListener("click", openWidgetWindow);
+
+  function openMainPage(){
+    if(window.wordGardenDesktop && typeof window.wordGardenDesktop.restoreMain==="function"){
+      window.wordGardenDesktop.restoreMain();
+      return;
+    }
+    const url = location.href.split("?")[0];
+    window.open(url, "wordGardenMain");
+  }
+
+  function refreshWidgetStats(){
+    const todayEl = document.getElementById("widgetTodayCount");
+    const totalEl = document.getElementById("widgetTotal");
+    const bubbleBtn = document.getElementById("widgetBubbleBtn");
+    if(!todayEl) return;
+    const today = todayStr();
+    const todayCount = state.words.filter(w=>w.dateAdded===today).length;
+    todayEl.textContent = todayCount;
+    totalEl.textContent = "共收录 " + state.words.length + " 词";
+    if(bubbleBtn){
+      bubbleBtn.innerHTML = `<span class="widget-mini-main">${todayCount}</span>`;
+    }
+  }
+
+  function initWidget(){
+    document.getElementById("app").classList.add("hidden");
+    document.getElementById("bubble").classList.add("hidden");
+    document.getElementById("widgetApp").classList.remove("hidden");
+    document.body.classList.add("widget-mode");
+
+    const card = document.getElementById("widgetCard");
+    const bubbleBtn = document.getElementById("widgetBubbleBtn");
+    const input = document.getElementById("widgetInput");
+    const msg = document.getElementById("widgetMsg");
+
+    refreshWidgetStats();
+
+    function trySetSize(w,h){
+      try{ window.resizeTo(w,h); }catch(e){}
+    }
+    function trySetPosition(w,h){
+      try{
+        const x = Math.max(0, (screen.availWidth || window.screen.width || 900) - w - 24);
+        const y = Math.max(0, (screen.availHeight || window.screen.height || 700) - h - 20);
+        window.moveTo(x,y);
+      }catch(e){}
+    }
+    function setCompactMode(isCompact){
+      card.classList.toggle("hidden", isCompact);
+      bubbleBtn.classList.toggle("hidden", !isCompact);
+      document.body.classList.toggle("widget-compact", isCompact);
+      refreshWidgetStats();
+      if(isCompact){
+        trySetSize(244,92);
+        trySetPosition(244,92);
+        if(window.wordGardenDesktop && typeof window.wordGardenDesktop.setWidgetMode==="function") window.wordGardenDesktop.setWidgetMode("compact");
+      }else{
+        trySetSize(320,320);
+        if(window.wordGardenDesktop && typeof window.wordGardenDesktop.setWidgetMode==="function") window.wordGardenDesktop.setWidgetMode("expanded");
+      }
+    }
+
+    if(window.wordGardenDesktop && typeof window.wordGardenDesktop.onForceCompact==="function"){
+      window.wordGardenDesktop.onForceCompact(()=>setCompactMode(true));
+    }
+
+    document.getElementById("widgetCollapseBtn").addEventListener("click", ()=>{
+      setCompactMode(true);
+    });
+    document.getElementById("widgetOpenMainBtn").addEventListener("click", openMainPage);
+    bubbleBtn.addEventListener("click", ()=>{
+      setCompactMode(false);
+      setTimeout(()=>input.focus(),50);
+    });
+
+    function submit(){
+      const parsed = parseQuickInput(input.value);
+      if(!parsed){
+        msg.textContent = "请输入内容，如 apple 或 apple（例句）";
+        return;
+      }
+      const res = addOrUpdateWord(parsed);
+      msg.textContent = res.msg;
+      if(res.ok){
+        input.value = "";
+        refreshWidgetStats();
+        scheduleAutoFill(res.id);
+      }
+      setTimeout(()=>{ if(msg.textContent===res.msg) msg.textContent=""; }, 1800);
+    }
+    input.addEventListener("keydown", (e)=>{ if(e.key==="Enter") submit(); });
+    setCompactMode(true);
+
+    // 跨窗口同步：主窗口或其它小组件窗口写入 localStorage 时，这里也刷新统计
+    window.addEventListener("storage", (e)=>{
+      const activeKey = userDataKey(currentUser().id);
+      if(e.key===USER_INDEX_KEY || e.key===activeKey || e.key===LEGACY_STORE_KEY){
+        reloadFromStorage();
+      }
+    });
+  }
+
+  /* ---------------- 初始化 ---------------- */
+  if(isWidgetMode){
+    initWidget();
+  }else{
+    renderCurrentView();
+    window.addEventListener("storage", (e)=>{
+      const activeKey = userDataKey(currentUser().id);
+      if(e.key===USER_INDEX_KEY || e.key===activeKey || e.key===LEGACY_STORE_KEY){
+        reloadFromStorage();
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>
